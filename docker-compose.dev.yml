@@ -1,0 +1,137 @@
+services:
+  traefik:
+    image: traefik:v3.7
+    container_name: ${APP_NAME}-traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.db.address=:5432"
+      - "--entrypoints.keycloak.address=:8081"
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "5432:5432"
+      - "8081:8081"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - internal-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:17
+    container_name: ${APP_NAME}-db
+    environment:
+      POSTGRES_USER: ${PSQL_USERNAME}
+      POSTGRES_PASSWORD: ${PSQL_PASSOWRD}
+      POSTGRES_DB: ${PSQL_DATABASE}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${PSQL_USERNAME}", "-d", "postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.db.entrypoints=db"
+      - "traefik.tcp.routers.db.rule=HostSNI(`*`)"
+      - "traefik.tcp.services.db.loadbalancer.server.port=5432"
+    networks:
+      - internal-network
+
+  redis:
+    image: redis:8-alpine
+    container_name: ${APP_NAME}-redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.redis.entrypoints=redis"
+      - "traefik.tcp.routers.redis.rule=HostSNI(`*`)"
+      - "traefik.tcp.services.redis.loadbalancer.server.port=6379"
+    networks:
+      - internal-network
+
+  api:
+    build: .
+    container_name: ${APP_NAME}-api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: postgresql://${PSQL_USERNAME}:${PSQL_PASSOWRD}@db:5432/${PSQL_DATABASE}
+      REDIS_URL: redis://redis:6379/0
+      KEYCLOAK_REALM_URL: http://keycloak:8080/realms/{$APP_NAME}
+      KEYCLOAK_CLIENT_ID: api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.localhost`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.routers.api.middlewares=api-stripprefix"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api"
+    networks:
+      - internal-network
+
+  worker:
+    build: .
+    command: celery -A app.workers.celery_app worker --loglevel=info
+    container_name: ${APP_NAME}-worker
+    depends_on:
+      - db
+      - redis
+    environment:
+      DATABASE_URL: postgresql://${PSQL_USERNAME}:${PSQL_PASSOWRD}@db:5432/${PSQL_DATABASE}
+      REDIS_URL: redis://redis:6379/0
+      KEYCLOAK_REALM_URL: http://keycloak:8080/realms/{$APP_NAME}
+      KEYCLOAK_CLIENT_ID: api
+    networks:
+      - internal-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    container_name: ${APP_NAME}-keycloak
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_PASSWORD}
+      KC_HTTP_PORT: "8081"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
+      - "traefik.http.routers.keycloak.entrypoints=keycloak"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8081"
+    networks:
+      - internal-network
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: ${APP_NAME}-web
+    environment:
+      VITE_API_URL: /api
+      VITE_KEYCLOAK_URL: http://keycloak:8080/realms/{$APP_NAME}
+      VITE_KEYCLOAK_REALM: { $APP_NAME }
+      VITE_KEYCLOAK_CLIENT_ID: web
+    depends_on:
+      - api
+      - keycloak
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`web.localhost`)"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=80"
+    networks:
+      - internal-network
+
+volumes:
+  db-data:
+
+networks:
+  internal-network:
+    driver: bridge
