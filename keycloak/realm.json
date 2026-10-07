@@ -1,7 +1,8 @@
 {
   "id": "csh",
   "realm": "csh",
-  "displayName": "csh Realm",
+  "displayName": "CSH Realm",
+  "loginTheme": "fsp",
   "enabled": true,
   "clients": [
     {
@@ -13,11 +14,13 @@
       "implicitFlowEnabled": false,
       "redirectUris": [
         "http://web.localhost/*",
+        "http://localhost:5173/*",
         "http://localhost:3000/*",
         "http://csh.goodgenius.ru/*"
       ],
       "webOrigins": [
         "http://web.localhost",
+        "http://localhost:5173",
         "http://localhost:3000",
         "http://csh.goodgenius.ru"
       ],
@@ -28,7 +31,6 @@
           "protocolMapper": "oidc-usermodel-realm-role-mapper",
           "consentRequired": false,
           "config": {
-            "user.attribute": "foo",
             "access.token.claim": "true",
             "claim.name": "realm_access.roles",
             "jsonType.label": "String",
@@ -67,7 +69,6 @@
           "protocolMapper": "oidc-usermodel-realm-role-mapper",
           "consentRequired": false,
           "config": {
-            "user.attribute": "foo",
             "access.token.claim": "true",
             "claim.name": "realm_access.roles",
             "jsonType.label": "String",
@@ -80,25 +81,25 @@
   "roles": {
     "realm": [
       {
-        "name": "admin",
-        "description": "Administrator role"
+        "name": "admins",
+        "description": "Администраторы"
       },
       {
-        "name": "engineer",
-        "description": "Engineer role"
+        "name": "employers",
+        "description": "Работодатели"
       },
       {
-        "name": "viewer",
-        "description": "Viewer role"
+        "name": "candidats",
+        "description": "Кандидаты"
       }
     ]
   },
   "users": [
     {
-      "username": "engineer",
-      "email": "engineer@example.com",
-      "firstName": "Test",
-      "lastName": "engineer",
+      "username": "candidat",
+      "email": "candidat@goodgenius.ru",
+      "firstName": "Иван",
+      "lastName": "Иванов",
       "enabled": true,
       "credentials": [
         {
@@ -108,24 +109,41 @@
         }
       ],
       "realmRoles": [
-        "engineer"
+        "candidats"
       ]
     },
     {
-      "username": "admin",
-      "email": "admin@example.com",
-      "firstName": "Admin",
-      "lastName": "User",
+      "username": "employer",
+      "email": "employer@goodgenius.ru",
+      "firstName": "Петр",
+      "lastName": "Петров",
       "enabled": true,
       "credentials": [
         {
           "type": "password",
-          "value": "admin123",
+          "value": "password123",
           "temporary": false
         }
       ],
       "realmRoles": [
-        "admin"
+        "employers"
+      ]
+    },
+    {
+      "username": "admin",
+      "email": "admin@goodgenius.ru",
+      "firstName": "Сергей",
+      "lastName": "Админов",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "admins"
       ]
     }
   ]

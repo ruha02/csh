@@ -1,0 +1,7 @@
+# API теперь запускается локально на порту 8080
+VITE_API_URL=http://localhost:8000
+
+# Keycloak доступен через Traefik на хосте
+VITE_KEYCLOAK_URL=http://kc.localhost:8081
+VITE_KEYCLOAK_REALM=csh
+VITE_KEYCLOAK_CLIENT_ID=web

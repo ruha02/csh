@@ -168,7 +168,7 @@ venv.bak/
 
 # mkdocs/Zensical documentation
 /site
-
+poetry.lock
 # mypy
 .mypy_cache/
 .dmypy.json

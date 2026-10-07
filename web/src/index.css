@@ -1,0 +1,28 @@
+/* src/index.css */
+
+/* Базовые стили для тела документа (JetBrains Mono уже задан в theme.ts, но можно продублировать для надежности) */
+body {
+  margin: 0;
+  background-color: #EDEDED;
+  color: #1B1C21;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Применяем Unbounded ко всем стандартным HTML-заголовкам и заголовкам Ant Design */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.ant-typography h1,
+.ant-typography h2,
+.ant-typography h3,
+.ant-typography h4,
+.ant-typography h5,
+.ant-typography h6,
+.ant-typography-title {
+  font-family: 'Unbounded', sans-serif !important;
+  font-weight: 600;
+  /* Опционально: делаем заголовки чуть жирнее для красоты */
+}

@@ -45,16 +45,15 @@ services:
   redis:
     image: redis:8-alpine
     container_name: ${APP_NAME}-redis
-    labels:
-      - "traefik.enable=true"
-      - "traefik.tcp.routers.redis.entrypoints=redis"
-      - "traefik.tcp.routers.redis.rule=HostSNI(`*`)"
-      - "traefik.tcp.services.redis.loadbalancer.server.port=6379"
+    ports:
+      - "6379:6379"
     networks:
       - internal-network
 
   api:
-    build: .
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     container_name: ${APP_NAME}-api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     depends_on:
@@ -63,7 +62,8 @@ services:
     environment:
       DATABASE_URL: postgresql://${PSQL_USERNAME}:${PSQL_PASSOWRD}@db:5432/${PSQL_DATABASE}
       REDIS_URL: redis://redis:6379/0
-      KEYCLOAK_REALM_URL: http://keycloak:8080/realms/{$APP_NAME}
+      KEYCLOAK_REALM_URL: http://kc.localhost:8081
+      KEYCLOAK_REALM: ${APP_NAME}
       KEYCLOAK_CLIENT_ID: api
     labels:
       - "traefik.enable=true"
@@ -76,7 +76,9 @@ services:
       - internal-network
 
   worker:
-    build: .
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     command: celery -A app.workers.celery_app worker --loglevel=info
     container_name: ${APP_NAME}-worker
     depends_on:
@@ -85,7 +87,8 @@ services:
     environment:
       DATABASE_URL: postgresql://${PSQL_USERNAME}:${PSQL_PASSOWRD}@db:5432/${PSQL_DATABASE}
       REDIS_URL: redis://redis:6379/0
-      KEYCLOAK_REALM_URL: http://keycloak:8080/realms/{$APP_NAME}
+      KEYCLOAK_REALM_URL: http://kc.localhost:8081
+      KEYCLOAK_REALM: ${APP_NAME}
       KEYCLOAK_CLIENT_ID: api
     networks:
       - internal-network
@@ -100,9 +103,10 @@ services:
       KC_HTTP_PORT: "8081"
     volumes:
       - ./keycloak:/opt/keycloak/data/import:ro
+      - ./keycloak/themes:/opt/keycloak/themes:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.keycloak.rule=Host(`keycloak.localhost`)"
+      - "traefik.http.routers.keycloak.rule=Host(`kc.localhost`)"
       - "traefik.http.routers.keycloak.entrypoints=keycloak"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8081"
     networks:
@@ -112,11 +116,16 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+        VITE_KEYCLOAK_URL: http://kc.localhost:8081
+        VITE_KEYCLOAK_REALM: ${APP_NAME}
+        VITE_KEYCLOAK_CLIENT_ID: web
     container_name: ${APP_NAME}-web
     environment:
       VITE_API_URL: /api
-      VITE_KEYCLOAK_URL: http://keycloak:8080/realms/{$APP_NAME}
-      VITE_KEYCLOAK_REALM: { $APP_NAME }
+      VITE_KEYCLOAK_URL: http://kc.localhost:8081
+      VITE_KEYCLOAK_REALM: ${APP_NAME}
       VITE_KEYCLOAK_CLIENT_ID: web
     depends_on:
       - api
