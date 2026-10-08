@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://admin:password@localhost:5432/csh_db"
+    "DATABASE_URL", "postgresql+psycopg2://admin:password@localhost:5432/csh_db"
 )
 
 # Синхронный engine – нужен Alembic и некоторые скрипты CLI
@@ -14,7 +14,7 @@ SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
 # Асинхронный engine – для FastAPI эндпоинтов
 async_engine = create_async_engine(
-    DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
+    DATABASE_URL.replace("postgresql+psycopg2://", "postgresql+asyncpg://"),
     echo=False,
     future=True,
 )

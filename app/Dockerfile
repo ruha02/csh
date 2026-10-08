@@ -9,10 +9,7 @@ RUN apt-get update \
 
 WORKDIR /srv/app
 
-COPY pyproject.toml ./
-COPY . ./app
-COPY alembic ./alembic
-COPY alembic.ini ./
+COPY . .
 
 RUN pip install --no-cache-dir .
 

@@ -9,8 +9,11 @@ Keycloak. For simplicity the ``uvicorn`` server can be started with:
 
 from fastapi import FastAPI
 
+from routers import candidate_router
+
 app = FastAPI(title="Cyber Sport Hunter API", version="0.1.0")
 
+app.include_router(candidate_router, prefix="/api")
 
 # Health check
 @app.get("/health")

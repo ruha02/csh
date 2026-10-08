@@ -1,4 +1,5 @@
 <#import "template.ftl" as layout>
+<script>document.title = "Вход ФСП ID";</script>
 <@layout.registrationLayout displayInfo=social.displayInfo; section>
     <#if section = "header">
         <div class="login-header">
@@ -38,7 +39,46 @@
                         </div>
                     </#if>
                 </form>
+
+
+            <!-- Кнопки быстрого входа (только в dev-режиме) -->
+                <div class="quick-login">
+                    <div class="quick-login-title">⚡ Быстрый вход (тестовые данные)</div>
+                    <div class="quick-login-buttons">
+                        <button type="button" class="quick-btn quick-btn-candidate " onclick="fillAndSubmit('candidat', 'password123')">
+                            <span class="quick-btn-icon">👤</span>
+                            <span class="quick-btn-text">Кандидат</span>
+                        </button>
+                        <button type="button" class="quick-btn quick-btn-employer" onclick="fillAndSubmit('employer', 'password123')">
+                            <span class="quick-btn-icon">🏢</span>
+                            <span class="quick-btn-text">Работодатель</span>
+                        </button>
+                        <button type="button" class="quick-btn quick-btn-admin" onclick="fillAndSubmit('admin', 'password123')">
+                            <span class="quick-btn-icon">️✨</span>
+                            <span class="quick-btn-text">Админ</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <script>
+            function fillAndSubmit(username, password) {
+                var usernameField = document.getElementById('username');
+                var passwordField = document.getElementById('password');
+                var loginButton = document.getElementById('kc-login');
+
+                if (usernameField && passwordField) {
+                    usernameField.value = username;
+                    passwordField.value = password;
+
+                    // Визуальная обратная связь
+                    usernameField.style.borderColor = '#402FFF';
+                    passwordField.style.borderColor = '#402FFF';
+
+                    
+                }
+            }
+        </script>
     </#if>
 </@layout.registrationLayout>

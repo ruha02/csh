@@ -55,12 +55,12 @@ services:
       context: ./app
       dockerfile: Dockerfile
     container_name: ${APP_NAME}-api
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
     depends_on:
       - db
       - redis
     environment:
-      DATABASE_URL: postgresql://${PSQL_USERNAME}:${PSQL_PASSOWRD}@db:5432/${PSQL_DATABASE}
+      DATABASE_URL: postgresql+psycopg2://${PSQL_USERNAME}:${PSQL_PASSOWRD}@db:5432/${PSQL_DATABASE}
       REDIS_URL: redis://redis:6379/0
       KEYCLOAK_REALM_URL: http://kc.localhost:8081
       KEYCLOAK_REALM: ${APP_NAME}

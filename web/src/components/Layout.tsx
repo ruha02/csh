@@ -1,8 +1,22 @@
-import React from 'react';
-import { Layout, Menu, Typography, Button, Avatar, Tag } from 'antd';
-import { LogoutOutlined, UserOutlined, DashboardOutlined, SettingOutlined } from '@ant-design/icons';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import {
+    BankOutlined,
+    CheckSquareOutlined,
+    DatabaseOutlined,
+    ExperimentOutlined,
+    FileTextOutlined,
+    InboxOutlined,
+    LogoutOutlined,
+    MailOutlined,
+    SearchOutlined,
+    SettingOutlined,
+    StarOutlined,
+    TeamOutlined,
+    UserOutlined
+} from '@ant-design/icons';
 import { useKeycloak } from '@react-keycloak/web';
+import { Avatar, Button, Layout, Menu, Tag, Typography } from 'antd';
+import React from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { getRoleDescription } from '../constants/roles';
 
 const { Header, Content, Footer } = Layout;
@@ -15,12 +29,9 @@ const AppLayout: React.FC = () => {
 
     const firstName = keycloak.tokenParsed?.given_name || 'Пользователь';
     const lastName = keycloak.tokenParsed?.family_name || '';
-
     const roles: string[] = keycloak.tokenParsed?.realm_access?.roles || [];
     const primaryRole = roles[0] || '';
-
     const roleDescription = getRoleDescription(primaryRole);
-
     const lastNameInitial = lastName ? `${lastName.charAt(0)}.` : '';
     const displayName = `${firstName} ${lastNameInitial}`.trim();
 
@@ -28,10 +39,40 @@ const AppLayout: React.FC = () => {
         keycloak.logout({ redirectUri: window.location.origin });
     };
 
-    const menuItems = [
-        { key: '/', icon: <DashboardOutlined />, label: 'Главная' },
-        { key: '/settings', icon: <SettingOutlined />, label: 'Настройки' },
-    ];
+    // Меню в зависимости от роли
+    const getMenuItems = () => {
+        if (roles.includes('candidats')) {
+            return [
+                { key: '/candidate/profile', icon: <FileTextOutlined />, label: 'Анкета' },
+                { key: '/candidate/skills', icon: <StarOutlined />, label: 'Навыки' },
+                { key: '/candidate/tests', icon: <ExperimentOutlined />, label: 'Тесты' },
+                { key: '/candidate/tasks', icon: <CheckSquareOutlined />, label: 'Задания' },
+                { key: '/candidate/vacancies', icon: <BankOutlined />, label: 'Вакансии' },
+                { key: '/candidate/invitations', icon: <MailOutlined />, label: 'Приглашения' },
+                { key: '/candidate/settings', icon: <SettingOutlined />, label: 'Настройки' },
+            ];
+        }
+
+        if (roles.includes('employers')) {
+            return [
+                { key: '/employer/company-profile', icon: <TeamOutlined />, label: 'Профиль компании' },
+                { key: '/employer/vacancies', icon: <BankOutlined />, label: 'Вакансии' },
+                { key: '/employer/candidates', icon: <SearchOutlined />, label: 'Подбор кандидатов' },
+                { key: '/employer/responses', icon: <InboxOutlined />, label: 'Отклики' },
+                { key: '/employer/settings', icon: <SettingOutlined />, label: 'Настройки' },
+            ];
+        }
+
+        if (roles.includes('admins')) {
+            return [
+                { key: '/admin/candidates', icon: <UserOutlined />, label: 'Кандидаты' },
+                { key: '/admin/employers', icon: <TeamOutlined />, label: 'Работодатели' },
+                { key: '/admin/dictionaries', icon: <DatabaseOutlined />, label: 'Справочники' },
+            ];
+        }
+
+        return [];
+    };
 
     if (!initialized) {
         return (
@@ -55,7 +96,6 @@ const AppLayout: React.FC = () => {
                 justifyContent: 'space-between',
                 padding: '0 24px'
             }}>
-                {/* Логотип и название */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{
                         width: 40,
@@ -80,7 +120,7 @@ const AppLayout: React.FC = () => {
                     theme="dark"
                     mode="horizontal"
                     selectedKeys={[location.pathname]}
-                    items={menuItems}
+                    items={getMenuItems()}
                     onClick={({ key }) => navigate(key)}
                     style={{
                         flex: 1,
@@ -111,7 +151,6 @@ const AppLayout: React.FC = () => {
                 </div>
             </Header>
 
-            {/* Контентная область */}
             <Content style={{
                 padding: '24px',
                 maxWidth: '1200px',
