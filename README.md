@@ -45,11 +45,11 @@
 | **Авторизация** | Keycloak (SSO, JWT, realm roles) |
 | **Инфраструктура** | Docker, Docker Compose, Traefik v3.7 (reverse proxy) |
 | **Шрифты** | JetBrains Mono (основной), Unbounded (заголовки) |
-| **Цвета** | - `#402FFF` — primary (синий)
-|           | - `#EC1D35` — error/accent (красный)
-|           | - `#EDEDED` — background layout
-|           | - `#1B1C21` — text dark / header bg
-|           | - `#C8C9CA` — muted text |
+| **Цвета** |  `#402FFF` — primary (синий)
+|           |  `#EC1D35` — error/accent (красный)
+|           |  `#EDEDED` — background layout
+|           |  `#1B1C21` — text dark / header bg
+|           |  `#C8C9CA` — muted text |
 
 ---
 
@@ -64,7 +64,7 @@
 ### 1. Клонирование репозитория
 
 ```bash
-git clone <repository-url>
+git clone [https://github.com/ruha02/csh](https://github.com/ruha02/csh)
 cd csh
 ```
 
