@@ -1,7 +1,9 @@
 import time
 
 import jwt
+import jwt as pyjwt
 import requests
+from fastapi import Depends, HTTPException, status
 
 from .config import settings
 
@@ -74,3 +76,5 @@ def get_user_roles(token: str) -> set[str]:
     """Роли из claim `realm_access.roles` (Keycloak realm roles)."""
     payload = decode_jwt(token)
     return set(payload.get("realm_access", {}).get("roles", []))
+
+

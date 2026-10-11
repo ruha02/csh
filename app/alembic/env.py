@@ -9,6 +9,7 @@ import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
+
 from alembic import context
 
 # this is the Alembic Config object, which provides
@@ -20,6 +21,10 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+
+db_url = os.getenv("DATABASE_URL")
+if db_url:
+    config.set_main_option("sqlalchemy.url", db_url)
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
@@ -30,6 +35,7 @@ target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired here.
+
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -73,6 +79,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

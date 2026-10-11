@@ -1,7 +1,8 @@
 from collections.abc import Iterable
 
-import jwt as pyjwt
+import jwt
 from fastapi import Depends, Header, HTTPException, status
+from jwt.exceptions import PyJWTError
 
 from .security import get_user_roles
 
@@ -22,33 +23,16 @@ def extract_token(authorization: str | None = Header(default=None)) -> str:
 
 
 def require_roles(required_roles: Iterable[str]):
-    """Зависимость: у пользователя должна быть хотя бы одна из ролей.
-    Доступные роли (из realm.json Keycloak):
-        - admins      (Администраторы)
-        - employers   (Работодатели)
-        - candidats   (Кандидаты)
-    Usage::
-        @router.get("/admin")
-        def admin_endpoint(roles: Set[str] = Depends(require_roles(["admins"]))):
-            ...
-        @router.get("/candidate")
-        def candidate_endpoint(roles: Set[str] = Depends(require_roles(["candidats"]))):
-            ...
-        @router.get("/mixed")
-        def mixed_endpoint(roles: Set[str] = Depends(require_roles(["admins", "employers"]))):
-            ...
-    """
     required = set(required_roles)
 
     async def dependency(token: str = Depends(extract_token)) -> set[str]:
         try:
             user_roles = get_user_roles(token)
-        except pyjwt.PyJWTError as exc:
+        except PyJWTError as exc:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=f"Invalid token: {exc}",
             ) from exc
-
         if not user_roles & required:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -57,3 +41,26 @@ def require_roles(required_roles: Iterable[str]):
         return user_roles
 
     return dependency
+
+
+def get_current_user_sub(token: str = Depends(extract_token)) -> str:
+    """Извлекает поле 'sub' из JWT-токена Keycloak."""
+    try:
+        payload = jwt.decode(
+            token,
+            options={"verify_signature": False},
+            algorithms=["RS256", "HS256"],
+        )
+    except PyJWTError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid token: {exc}",
+        ) from exc
+
+    sub = payload.get("sub")
+    if not sub:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token missing 'sub' claim",
+        )
+    return sub

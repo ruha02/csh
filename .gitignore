@@ -207,7 +207,10 @@ tempCodeRunnerFile.py
 
 # Ruff stuff:
 .ruff_cache/
-
+info.md
+code.md
+generate_docs.py
+ruff.toml
 # PyPI configuration file
 .pypirc
 

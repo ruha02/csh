@@ -62,6 +62,7 @@
       "implicitFlowEnabled": false,
       "bearerOnly": false,
       "secret": "api-secret-key",
+      "serviceAccountsEnabled": true,
       "protocolMappers": [
         {
           "name": "realm-roles",
@@ -97,7 +98,7 @@
   "users": [
     {
       "username": "candidat",
-      "email": "candidat@goodgenius.ru",
+      "email": "ivanov@goodgenius.ru",
       "firstName": "Иван",
       "lastName": "Иванов",
       "enabled": true,

@@ -9,8 +9,9 @@ import keycloak from './keycloak';
 import { appTheme } from './theme';
 
 // Страницы кандидата
-import CandidateInvitations from './pages/candidate/Invitations';
+import CandidateFsp from './pages/candidate/Fsp';
 import CandidateProfile from './pages/candidate/Profile';
+import CandidateResume from './pages/candidate/Resume';
 import CandidateSettings from './pages/candidate/Settings';
 import CandidateSkills from './pages/candidate/Skills';
 import CandidateTasks from './pages/candidate/Tasks';
@@ -73,6 +74,7 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
+
               <Route
                 path="candidate/skills"
                 element={
@@ -82,10 +84,26 @@ const App: React.FC = () => {
                 }
               />
               <Route
+                path="candidate/fsp"
+                element={
+                  <ProtectedRoute allowedRoles={['candidats']}>
+                    <CandidateFsp />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="candidate/tests"
                 element={
                   <ProtectedRoute allowedRoles={['candidats']}>
                     <CandidateTests />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="candidate/resume"  // ← Добавьте этот маршрут
+                element={
+                  <ProtectedRoute allowedRoles={['candidats']}>
+                    <CandidateResume />
                   </ProtectedRoute>
                 }
               />
@@ -102,14 +120,6 @@ const App: React.FC = () => {
                 element={
                   <ProtectedRoute allowedRoles={['candidats']}>
                     <CandidateVacancies />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="candidate/invitations"
-                element={
-                  <ProtectedRoute allowedRoles={['candidats']}>
-                    <CandidateInvitations />
                   </ProtectedRoute>
                 }
               />

@@ -1,0 +1,80 @@
+import type { VacancyResponse } from './types';
+
+export const MOCK_RESPONSES: VacancyResponse[] = [
+    {
+        id: 1,
+        vacancyId: 1,
+        resumeId: 1,
+        resumeTitle: 'Senior Frontend Developer',
+        coverLetter:
+            'Здравствуйте! Меня заинтересовала ваша вакансия. У меня более 5 лет опыта работы с React и TypeScript.',
+        status: 'accepted',
+        taskId: 1,
+        createdAt: '2026-10-02',
+        viewedAt: '2026-10-03',
+        respondedAt: '2026-10-05',
+        comment: 'Отличное резюме! Приглашаем на техническое собеседование.',
+        messages: [
+            {
+                id: 1,
+                sender: 'employer',
+                text: 'Иван, здравствуйте! Спасибо за отклик. Ваше резюме нам очень понравилось.',
+                timestamp: '2026-10-03T10:15:00',
+            },
+            {
+                id: 2,
+                sender: 'candidate',
+                text: 'Добрый день! Рад это слышать. Подскажите, какие дальнейшие шаги?',
+                timestamp: '2026-10-03T11:30:00',
+            },
+            {
+                id: 3,
+                sender: 'employer',
+                text: 'Мы хотели бы назначить техническое собеседование на следующей неделе. Вам удобно в среду в 15:00?',
+                timestamp: '2026-10-05T09:00:00',
+            },
+        ],
+    },
+    {
+        id: 2,
+        vacancyId: 2,
+        resumeId: 2,
+        resumeTitle: 'Backend Developer (Python)',
+        coverLetter: 'Добрый день! Увидел вашу вакансию и хочу предложить свою кандидатуру.',
+        status: 'viewed',
+        taskId: 3,
+        createdAt: '2026-10-06',
+        viewedAt: '2026-10-07',
+        messages: [
+            {
+                id: 1,
+                sender: 'employer',
+                text: 'Здравствуйте! Мы рассмотрели ваш отклик. Не могли бы вы уточнить ваш опыт работы с FastAPI?',
+                timestamp: '2026-10-07T14:20:00',
+            },
+        ],
+    },
+    {
+        id: 3,
+        vacancyId: 4,
+        resumeId: 2,
+        resumeTitle: 'Backend Developer (Python)',
+        coverLetter: 'Здравствуйте! Заинтересовала ваша вакансия Senior Backend Developer.',
+        status: 'rejected',
+        createdAt: '2026-09-28',
+        viewedAt: '2026-09-30',
+        respondedAt: '2026-10-02',
+        comment: 'Спасибо за отклик! К сожалению, остановились на другом кандидате.',
+        messages: [],
+    },
+    {
+        id: 4,
+        vacancyId: 3,
+        resumeId: 1,
+        resumeTitle: 'Senior Frontend Developer',
+        coverLetter: 'Добрый день! Меня заинтересовала вакансия Junior Frontend Developer.',
+        status: 'pending',
+        createdAt: '2026-10-09',
+        messages: [],
+    },
+];

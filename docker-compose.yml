@@ -79,7 +79,7 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    command: celery -A app.workers.celery_app worker --loglevel=info
+    command: celery -A workers.celery_app worker --loglevel=info
     container_name: ${APP_NAME}-worker
     depends_on:
       - db
@@ -137,7 +137,67 @@ services:
       - "traefik.http.services.web.loadbalancer.server.port=80"
     networks:
       - internal-network
+  keycloak-setup:
+    image: python:3.11-slim
+    container_name: ${APP_NAME}-keycloak-setup
+    command: >
+      bash -c "
+        pip install curl >/dev/null 2>&1 || true;
+        apt-get update -qq && apt-get install -y -qq curl >/dev/null 2>&1;
+        bash /setup-keycloak.sh
+      "
+    volumes:
+      - ./keycloak/scripts/setup-keycloak.sh:/setup-keycloak.sh:ro
+    environment:
+      KC_URL: http://keycloak:8081
+      KC_ADMIN: ${KC_ADMIN}
+      KC_PASSWORD: ${KC_PASSWORD}
+      REALM: ${APP_NAME}
+      CLIENT_ID: api
+    depends_on:
+      - keycloak
+    networks:
+      - internal-network
+    restart: "no"
 
+  migrate:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: ${APP_NAME}-migrate
+    command: alembic upgrade head
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${PSQL_USERNAME}:${PSQL_PASSOWRD}@db:5432/${PSQL_DATABASE}
+    networks:
+      - internal-network
+    restart: "no"
+
+  # ============================================================
+  #  Seed тестовыми данными (запускается после миграций)
+  # ============================================================
+  seed:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: ${APP_NAME}-seed
+    command: >
+      python seed.py
+        --skip-keycloak
+        --skip-if-seeded
+    depends_on:
+      - migrate
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${PSQL_USERNAME}:${PSQL_PASSOWRD}@db:5432/${PSQL_DATABASE}
+      REDIS_URL: redis://redis:6379/0
+      KEYCLOAK_REALM_URL: http://keycloak:8081/realms/csh
+      KEYCLOAK_REALM: ${APP_NAME}
+      KEYCLOAK_CLIENT_ID: api
+    networks:
+      - internal-network
+    restart: "no"
 volumes:
   db-data:
 

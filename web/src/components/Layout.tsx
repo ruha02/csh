@@ -6,11 +6,11 @@ import {
     FileTextOutlined,
     InboxOutlined,
     LogoutOutlined,
-    MailOutlined,
     SearchOutlined,
     SettingOutlined,
     StarOutlined,
     TeamOutlined,
+    TrophyOutlined,
     UserOutlined
 } from '@ant-design/icons';
 import { useKeycloak } from '@react-keycloak/web';
@@ -45,10 +45,11 @@ const AppLayout: React.FC = () => {
             return [
                 { key: '/candidate/profile', icon: <FileTextOutlined />, label: 'Анкета' },
                 { key: '/candidate/skills', icon: <StarOutlined />, label: 'Навыки' },
+                { key: '/candidate/fsp', icon: <TrophyOutlined />, label: 'ФСП' },
                 { key: '/candidate/tests', icon: <ExperimentOutlined />, label: 'Тесты' },
+                { key: '/candidate/resume', icon: <FileTextOutlined />, label: 'Резюме' }, // ← Добавьте эту строку
                 { key: '/candidate/tasks', icon: <CheckSquareOutlined />, label: 'Задания' },
                 { key: '/candidate/vacancies', icon: <BankOutlined />, label: 'Вакансии' },
-                { key: '/candidate/invitations', icon: <MailOutlined />, label: 'Приглашения' },
                 { key: '/candidate/settings', icon: <SettingOutlined />, label: 'Настройки' },
             ];
         }
